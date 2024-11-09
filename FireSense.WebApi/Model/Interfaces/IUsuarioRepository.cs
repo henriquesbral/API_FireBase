@@ -1,6 +1,6 @@
 ﻿using FireSense.WebApi.Model.Entities;
 
-namespace FireSenseDomain.Interfaces
+namespace FireSense.WebApi.Model.Interfaces
 {
     public interface IUsuarioRepository
     {

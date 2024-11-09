@@ -1,4 +1,4 @@
-using FireSenseDomain.Interfaces;
+using FireSense.WebApi.Model.Interfaces;
 using FireSenseInfra.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);

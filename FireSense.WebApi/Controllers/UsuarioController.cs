@@ -1,13 +1,13 @@
 ﻿using FireSense.WebApi.Model.Entities;
+using FireSense.WebApi.Model.Interfaces;
 using FireSense.WebApi.ViewModel;
-using FireSenseDomain.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc; 
 using System.Linq;
 
 namespace FireSense.WebApi.Controllers
 {
     [ApiController]
-    [Route("api/Usuario")]
+    [Route("api/[controller]")]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioRepository _usuarioRepository;
@@ -36,6 +36,44 @@ namespace FireSense.WebApi.Controllers
             
         }
 
+        [HttpPut]
+        public IActionResult AlterarSenha(int CodUsuario, [FromBody] UsuarioViewModel usuarioView)
+        {
+            try
+            {
+                var usuario = _usuarioRepository.Get();
+
+                var newUsuario = new Usuario(usuarioView.Nome, usuarioView.Login, usuarioView.Senha, usuarioView.CodPerfil);
+
+                foreach (var u in usuario)
+                {
+                    if (u.CodUsuario == CodUsuario && u.Senha != newUsuario.Senha)
+                    {
+                        u.CodUsuario = CodUsuario;
+                        u.Nome = newUsuario.Nome;
+                        u.Login = newUsuario.Login;
+                        u.Senha = newUsuario.Senha;
+                        u.CodPerfil = newUsuario.CodPerfil;
+                        u.DataCadastro = DateTime.Now;
+                        _usuarioRepository.Add(newUsuario);
+
+                        return Ok($"Senha Atualizada com sucesso !");
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                return BadRequest($"Nenhum registro encontrado com o Codigo informado");
+            }
+            catch (Exception ex)
+            {
+                string msg = $"Ocorreu um erro inesperado: {ex.Message}";
+                return BadRequest(msg);
+            }
+        }
+
         [HttpGet]
         public IActionResult Autenticar()
         {
@@ -43,7 +81,10 @@ namespace FireSense.WebApi.Controllers
             {
                 var usuario = _usuarioRepository.Get();
 
-                //var usuarioLogado = _usuarioRepository.FindBy(x => x.Login.Equals(login))
+                if (usuario == null)
+                {
+                    return BadRequest("Usuario Não Encontrado");
+                }
 
                 return Ok(usuario);
             }

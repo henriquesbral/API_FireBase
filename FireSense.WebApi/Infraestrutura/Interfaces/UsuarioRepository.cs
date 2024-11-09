@@ -1,6 +1,7 @@
 ﻿using FireSense.WebApi.Model.Entities;
-using FireSenseDomain.Interfaces;
+using FireSense.WebApi.Model.Interfaces;
 using FireSenseInfra.Context;
+using System.Linq;
 
 namespace FireSenseInfra.Interfaces
 {
@@ -18,5 +19,15 @@ namespace FireSenseInfra.Interfaces
         {
             return _context.Usuario.ToList();
         }
+
+        //public Usuario? Get(string login, string senha)
+        //{
+        //    return _context.Usuario.Find(login);
+        //}
+
+        //public List<Usuario> Get(string login)
+        //{
+        //    return _context.Usuario.ToList();
+        //}
     }
 }

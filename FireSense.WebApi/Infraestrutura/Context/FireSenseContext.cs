@@ -19,6 +19,5 @@ namespace FireSenseInfra.Context
                 Console.WriteLine(ex.Message);
             }
         }
-
     }
 }
