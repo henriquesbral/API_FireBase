@@ -1,6 +1,7 @@
 ﻿using FireSense.WebApi.Model.Entities;
 using FireSense.WebApi.Model.Interfaces;
 using FireSenseInfra.Context;
+using Serilog;
 using System.Linq;
 
 namespace FireSenseInfra.Interfaces
@@ -15,19 +16,35 @@ namespace FireSenseInfra.Interfaces
             _context.SaveChanges();
         }
 
+        public void Update(Usuario usuario)
+        {
+            _context.Usuario.Update(usuario);
+            _context.SaveChanges();
+        }
+
+        public void Delete(Usuario usuario)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<Usuario> Get()
         {
             return _context.Usuario.ToList();
         }
 
-        //public Usuario? Get(string login, string senha)
-        //{
-        //    return _context.Usuario.Find(login);
-        //}
+        public Usuario ObterAutenticar(string login, string senha)
+        {
+            return _context.Usuario.Where(x => x.Login == login && x.Senha == senha).FirstOrDefault();
+        }
 
-        //public List<Usuario> Get(string login)
-        //{
-        //    return _context.Usuario.ToList();
-        //}
+        public Usuario Obter(string login)
+        {
+            return _context.Usuario.Where(x => x.Login == login).FirstOrDefault();
+        }
+
+        public Usuario ObterUser(int codUsuario)
+        {
+            return _context.Usuario.Where(x => x.CodUsuario == codUsuario).FirstOrDefault();
+        }
     }
 }

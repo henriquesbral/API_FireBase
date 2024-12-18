@@ -9,9 +9,9 @@ namespace FireSense.WebApi.Model.Entities
         [Key]
         public int CodUsuario { get; set; }
 
-        public string? Login { get; set; }
+        public string Login { get; set; }
 
-        public string? Nome { get; set; }
+        public string Nome { get; set; }
 
         public string Senha { get; set; }
 
@@ -21,15 +21,5 @@ namespace FireSense.WebApi.Model.Entities
         public int CodPerfil { get; set; }
         #endregion
 
-        #region Constructor
-        public Usuario(string login, string nome, string senha, int codPerfil)
-        {
-            Login = login;
-            Nome = nome;
-            Senha = senha;
-            DataCadastro = DateTime.Now;
-            CodPerfil = codPerfil;
-        }
-        #endregion
     }
 }

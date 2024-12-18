@@ -1,4 +1,5 @@
-﻿using FireSense.WebApi.Model.Entities;
+﻿using FireSense.WebApi.Infraestrutura.Interfaces;
+using FireSense.WebApi.Model.Entities;
 using FireSense.WebApi.Model.Interfaces;
 using FireSense.WebApi.ViewModel;
 using Microsoft.AspNetCore.Mvc; 
@@ -11,22 +12,37 @@ namespace FireSense.WebApi.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ILogDeAcessosRepository _logDeAcessosRepository;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository) 
+        public UsuarioController(IUsuarioRepository usuarioRepository, ILogDeAcessosRepository logDeAcessosRepository) 
         {
             _usuarioRepository = usuarioRepository ?? throw new ArgumentNullException(nameof(usuarioRepository));
+            _logDeAcessosRepository = logDeAcessosRepository ?? throw new ArgumentNullException(nameof(logDeAcessosRepository));
         }
 
         [HttpPost]
+        [Route("/api/[controller]/Adicionar")]
         public IActionResult Adicionar(UsuarioViewModel usuarioView)
         {
             try
             {
-                var usuario = new Usuario(usuarioView.Login, usuarioView.Nome, usuarioView.Senha, usuarioView.CodPerfil);
-                
-                _usuarioRepository.Add(usuario);
+                if (!string.IsNullOrEmpty(usuarioView.Nome) && !string.IsNullOrEmpty(usuarioView.Sobrenome) && !string.IsNullOrEmpty(usuarioView.Senha))
+                {
+                    var usuario = new Usuario();
 
-                return Ok($"Bateu aqui, e foi salvo");
+                    usuario.Login = GerarLogin(usuarioView.Nome, usuarioView.Sobrenome).ToUpper();
+                    usuario.Nome = $"{usuarioView.Nome}  {usuarioView.Sobrenome}";
+                    usuario.Senha = usuarioView.Senha;
+                    usuario.DataCadastro = DateTime.Now;
+                    usuario.CodPerfil = 2;
+                    _usuarioRepository.Add(usuario);
+
+                    return Ok($"Usuario cadastrado, seu login é {usuario.Login}");
+                }
+                else
+                {
+                    return BadRequest("Por gentileza preencher os dados !");
+                }
             }
             catch (Exception ex) 
             { 
@@ -37,35 +53,34 @@ namespace FireSense.WebApi.Controllers
         }
 
         [HttpPut]
-        public IActionResult AlterarSenha(int CodUsuario, [FromBody] UsuarioViewModel usuarioView)
+        [Route("/api/[controller]/AlterarSenha")]
+        public IActionResult AlterarSenha(string login, string senha, string novaSenha)
         {
             try
             {
-                var usuario = _usuarioRepository.Get();
+                var usuario = _usuarioRepository.Obter(login);
 
-                var newUsuario = new Usuario(usuarioView.Nome, usuarioView.Login, usuarioView.Senha, usuarioView.CodPerfil);
-
-                foreach (var u in usuario)
+                if(usuario != null)
                 {
-                    if (u.CodUsuario == CodUsuario && u.Senha != newUsuario.Senha)
-                    {
-                        u.CodUsuario = CodUsuario;
-                        u.Nome = newUsuario.Nome;
-                        u.Login = newUsuario.Login;
-                        u.Senha = newUsuario.Senha;
-                        u.CodPerfil = newUsuario.CodPerfil;
-                        u.DataCadastro = DateTime.Now;
-                        _usuarioRepository.Add(newUsuario);
 
-                        return Ok($"Senha Atualizada com sucesso !");
+                    if (senha != novaSenha)
+                        return BadRequest("As senhas não são iguais, por gentileza verificar novamente !");
+
+                    if (usuario.Login == login && senha == novaSenha)
+                    {
+                        usuario.Senha = senha;
+                        _usuarioRepository.Update(usuario);
+                        return Ok("Senha atualizada");
                     }
                     else
                     {
-                        continue;
+                        return BadRequest("Usuario não encontrado, por favor acione a equipe de desenvolvimento.");
                     }
                 }
-
-                return BadRequest($"Nenhum registro encontrado com o Codigo informado");
+                else
+                {
+                    return BadRequest($"Usuario não encontrado, por favor acione a equipe de desenvolvimento.");
+                }
             }
             catch (Exception ex)
             {
@@ -75,24 +90,60 @@ namespace FireSense.WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult Autenticar()
+        [Route("/api/[controller]/Autenticar")]
+        public IActionResult Autenticar(string login, string senha)
         {
             try
             {
-                var usuario = _usuarioRepository.Get();
+                var usuario = _usuarioRepository.ObterAutenticar(login, senha);
+                
+                if (usuario != null)
+                    return BadRequest("Usuario não encontrado, por favor acione a equipe de desenvolvimento.");
 
-                if (usuario == null)
+                if (usuario.Login != login && usuario.Senha != senha)
                 {
-                    return BadRequest("Usuario Não Encontrado");
+                    return BadRequest("Usuario e ou senha incorretos, por gentileza validar novamente!");
                 }
+                else
+                {
+                    var log = _logDeAcessosRepository.Obter(usuario.CodUsuario);
+                    
+                    if (log != null && log.CodUsuario == usuario.CodUsuario)
+                    {
+                        log.DataUltimoAcesso = DateTime.Now;
+                        _logDeAcessosRepository.Update(log);
+                    }
+                    else
+                    {
+                        var newLog = new LogDeAcessos();
 
-                return Ok(usuario);
+                        newLog.CodUsuario = usuario.CodUsuario;
+                        newLog.DataUltimoAcesso = DateTime.Now;
+                        _logDeAcessosRepository.Add(newLog);
+                    }
+
+                    return Ok(usuario);
+                }
             }
             catch (Exception ex)
             {
                 string msg = $"Ocorreu um erro inesperado: {ex.Message}";
                 return BadRequest(msg);
             }
+        }
+
+        private string GerarLogin(string nome, string sobrenome)
+        {
+            string tratarNome = nome.Replace(" ",",");
+            string[] tratarN = tratarNome.Split(',');
+
+            string tratarSobrenome = sobrenome.Replace(" ", ",");
+            string[] tratarS = tratarSobrenome.Split(',');
+
+
+            string login = $"{tratarN[0]}.{tratarS[0]}";
+
+            return login;
         }
     }
 }

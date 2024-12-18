@@ -1,3 +1,4 @@
+using FireSense.WebApi.Infraestrutura.Interfaces;
 using FireSense.WebApi.Model.Interfaces;
 using FireSenseInfra.Interfaces;
 
@@ -11,6 +12,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddTransient<ILogDeAcessosRepository, LogDeAcessosRepository>();
+builder.Services.AddTransient<ILocalizacaoRepository, LocalizacaoRepository>();
+builder.Services.AddTransient<ICidadeRepository, CidadeRepository>();
+builder.Services.AddTransient<IEstadoRepository, EstadoRepository>();
+builder.Services.AddTransient<IStatusAlertaRepository, StatusAlertaRepository>();
+builder.Services.AddTransient<IAlertaLocalizacaoRepository, AlertaLocalizacaoRepository>();
 
 var app = builder.Build();
 
