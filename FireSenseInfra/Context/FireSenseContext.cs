@@ -13,11 +13,11 @@ namespace FireSenseInfra.Context
             try
             {
                 optionsBuilder.UseSqlServer(
-                    "Data Source = LENOVOHENRIQUE\\SQLEXPRESS;" + 
+                    "Data Source = SQLEXPRESS;" + 
                     "Initial Catalog = FireBaseDB;" +
                     "Integrated Security = True;" +
-                    "User Id = aps2024;" +
-                    "Password = 140612;" +
+                    "User Id = ;" +
+                    "Password = ;" +
                     "Timeout = 600000;");
             }
             catch (Exception ex)
