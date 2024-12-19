@@ -28,7 +28,7 @@ namespace FireSenseInfra.Context
         {
             try
             {
-                optionsBuilder.UseSqlServer("Server=LENOVOHENRIQUE\\SQLEXPRESS; Database=FireSenseDB; User=aps2024; Password=140612; Trusted_Connection=False; TrustServerCertificate=true");
+                optionsBuilder.UseSqlServer("Server=LENOVOHENRIQUE\\SQLEXPRESS; Database=FireSenseDB; User=APS2024; Password=140612; Trusted_Connection=False; TrustServerCertificate=true");
             }
             catch (Exception ex)
             {

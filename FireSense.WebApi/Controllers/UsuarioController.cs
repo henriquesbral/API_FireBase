@@ -2,6 +2,7 @@
 using FireSense.WebApi.Model.Entities;
 using FireSense.WebApi.Model.Interfaces;
 using FireSense.WebApi.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc; 
 using System.Linq;
 
@@ -20,6 +21,7 @@ namespace FireSense.WebApi.Controllers
             _logDeAcessosRepository = logDeAcessosRepository ?? throw new ArgumentNullException(nameof(logDeAcessosRepository));
         }
 
+        [Authorize]
         [HttpPost]
         [Route("/api/[controller]/Adicionar")]
         public IActionResult Adicionar(UsuarioViewModel usuarioView)
@@ -52,6 +54,7 @@ namespace FireSense.WebApi.Controllers
             
         }
 
+        [Authorize]
         [HttpPut]
         [Route("/api/[controller]/AlterarSenha")]
         public IActionResult AlterarSenha(string login, string senha, string novaSenha)
@@ -89,6 +92,7 @@ namespace FireSense.WebApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet]
         [Route("/api/[controller]/Autenticar")]
         public IActionResult Autenticar(string login, string senha)
@@ -97,7 +101,7 @@ namespace FireSense.WebApi.Controllers
             {
                 var usuario = _usuarioRepository.ObterAutenticar(login, senha);
                 
-                if (usuario != null)
+                if (usuario == null)
                     return BadRequest("Usuario não encontrado, por favor acione a equipe de desenvolvimento.");
 
                 if (usuario.Login != login && usuario.Senha != senha)

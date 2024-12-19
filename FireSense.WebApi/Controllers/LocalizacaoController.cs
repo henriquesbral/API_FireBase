@@ -3,6 +3,7 @@ using FireSense.WebApi.Infraestrutura.Interfaces;
 using FireSense.WebApi.Model.Entities;
 using FireSense.WebApi.Model.Interfaces;
 using FireSenseInfra.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FireSense.WebApi.Controllers
@@ -39,7 +40,7 @@ namespace FireSense.WebApi.Controllers
             _alertaLocalizacaoRepository = alertaLocalizacaoRepository ?? throw new ArgumentNullException(nameof(alertaLocalizacaoRepository));
         }
 
-
+        [Authorize]
         [HttpPost]
         [Route("/api/EnviarAlerta")]
         public IActionResult EnviarAlerta(DadosLocalizacao dadosRequest)
@@ -99,6 +100,7 @@ namespace FireSense.WebApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         [Route("/api/BuscarAlertas")]
         public IActionResult BuscarAlertas()
